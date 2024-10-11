@@ -1,13 +1,21 @@
 "use client";
 
-import { ConnectButton, useWalletInfo, useConnectionManager, useReadContract } from "thirdweb/react";
+import {
+  ConnectButton,
+  useWalletInfo,
+  useConnectionManager,
+  useReadContract,
+} from "thirdweb/react";
 import { client } from "./client";
 import { useSendTransaction } from "thirdweb/react";
 import { getContract, prepareContractCall } from "thirdweb";
-import { sepolia, bscTestnet, mainnet} from "thirdweb/chains";
-import { Toast } from 'primereact/toast';
+import { sepolia, bscTestnet, mainnet } from "thirdweb/chains";
+import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
+
+// Importing Press Start 2P font from Google Fonts
+import Head from 'next/head';
 
 const staking_address = process.env.NEXT_PUBLIC_STAKING_ADDRESS as string;
 const reward_address = process.env.NEXT_PUBLIC_REWARD_ADDRESS as string;
@@ -28,15 +36,25 @@ export default function Home() {
     1: false,
     2: false,
   });
-  
+
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const showSuccess = (message: string) => {
-    toast?.current?.show({ severity: 'success', summary: 'Success', detail: message, life: 3000 });
-  }
+    toast?.current?.show({
+      severity: "success",
+      summary: "Success",
+      detail: message,
+      life: 3000,
+    });
+  };
 
   const showError = (message: string) => {
-    toast?.current?.show({ severity: 'error', summary: 'Error', detail: message, life: 3000 });
-  }
+    toast?.current?.show({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 3000,
+    });
+  };
 
   const contract = getContract({
     address: staking_address,
@@ -50,19 +68,19 @@ export default function Home() {
     client,
   });
 
-  const { data: stakedWalletsInTier0, isLoading: isStakedWalletsLoadingInTier0 } = useReadContract({
+  const { data: stakedWalletsInTier0 } = useReadContract({
     contract,
     method: "function getStakedWallets(uint8 tierIndex) view returns (address[])",
     params: [0],
   });
 
-  const { data: stakedWalletsInTier1, isLoading: isStakedWalletsLoadingInTier1 } = useReadContract({
+  const { data: stakedWalletsInTier1 } = useReadContract({
     contract,
     method: "function getStakedWallets(uint8 tierIndex) view returns (address[])",
     params: [1],
   });
 
-  const { data: stakedWalletsInTier2, isLoading: isStakedWalletsLoadingInTier2 } = useReadContract({
+  const { data: stakedWalletsInTier2 } = useReadContract({
     contract,
     method: "function getStakedWallets(uint8 tierIndex) view returns (address[])",
     params: [2],
@@ -130,7 +148,7 @@ export default function Home() {
 
     const allStakes = [stakesInTier0, stakesInTier1, stakesInTier2];
 
-    allStakes.forEach(stake => {
+    allStakes.forEach((stake) => {
       if (stake && stake.length > 0) {
         const pendingRewardsForTier = stake[2]; // Index 2 is pendingRewards in the Stake struct
         totalPendingRewards += BigInt(pendingRewardsForTier);
@@ -141,13 +159,10 @@ export default function Home() {
     setPendingRewards(ethers.formatEther(totalPendingRewards));
   };
 
-
-  const { mutateAsync: sendTxAsync, data: transactionResult } = useSendTransaction();
-
+  const { mutateAsync: sendTxAsync } = useSendTransaction();
 
   const handleStakeClick = async (tierIndex: number, amount: number) => {
     try {
-
       if (isLoading[tierIndex]) return;
 
       setIsLoading({ ...isLoading, [tierIndex]: true });
@@ -157,22 +172,19 @@ export default function Home() {
         params: [staking_address, BigInt(amount)],
       });
 
-      const result1 = await sendTxAsync(stakeContractCall);
-      console.log(result1);
+      await sendTxAsync(stakeContractCall);
 
       const transaction = prepareContractCall({
         contract,
         method: "function stake(uint256 amount, uint8 tierIndex)",
         params: [BigInt(amount), tierIndex],
       });
-      const result = await sendTxAsync(transaction);
-      console.log(result);
+      await sendTxAsync(transaction);
       showSuccess("Successfully staked");
     } catch (err) {
       console.log(err);
       showError("Something went wrong");
     } finally {
-      console.log("done");
       setIsLoading({ ...isLoading, [tierIndex]: false });
     }
   };
@@ -185,22 +197,20 @@ export default function Home() {
         method: "function unstake(uint256 stakeIndex)",
         params: [BigInt(stakeIndex)],
       });
-      const result = await sendTxAsync(transaction);
-      console.log(result);
+      await sendTxAsync(transaction);
       showSuccess("Successfully unstaked");
     } catch (err) {
       console.log(err);
-      if (err?.toString().includes("Tokens are still locked")) {
-        showError("Tokens are still locked");
-      } else {
-        showError("Something went wrong while unstaking");
-      }
+      showError(
+        err?.toString().includes("Tokens are still locked")
+          ? "Tokens are still locked"
+          : "Something went wrong while unstaking"
+      );
     } finally {
       setIsLoading({ ...isLoading, [stakeIndex]: false });
     }
   };
 
-  // New function to handle claiming rewards
   const handleClaimRewards = async () => {
     try {
       setClaimLoading(true);
@@ -209,8 +219,7 @@ export default function Home() {
         method: "function claimRewards()",
         params: [],
       });
-      const result = await sendTxAsync(transaction);
-      console.log(result);
+      await sendTxAsync(transaction);
       showSuccess("Successfully claimed rewards");
     } catch (err) {
       console.log(err);
@@ -220,10 +229,22 @@ export default function Home() {
     }
   };
 
-
-
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-400 to-blue-600 py-10">
+    <>
+      {/* Head tag for importing the Google Font */}
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+
+      <main className="flex flex-col items-center justify-center min-h-screen bg-[#36A8FE] py-4">
+  {/* Box 1: Top images and Connect button */}
+  <div className="flex justify-center items-center space-x-4 mb-6">
+    <img src="images/dolphin-gold2.png" alt="Gold Dolphin Top" className="w-[125px] h-auto" />
+    <div className="flex justify-center items-center space-x-2">
+      <img src="images/vista-logo.png" alt="Left Logo" className="w-12 h-12" />
       <ConnectButton
         client={client}
         appMetadata={{
@@ -231,138 +252,150 @@ export default function Home() {
           url: "https://example.com",
         }}
       />
-      <Toast ref={toast} />
+      <img src="images/vista-logo.png" alt="Right Logo" className="w-12 h-12" />
+    </div>
+    <img src="images/dolphin-bronze2.png" alt="Bronze Dolphin Top" className="w-[125px] h-auto" />
+  </div>
 
-      {/* User Balance Box */}
-      <div className="mt-6 p-4 rounded-lg bg-white shadow-lg w-full max-w-4xl">
-        <h2 className="text-xl font-bold text-center mb-4 text-blue-800">Your Balance</h2>
-        <div className="text-center text-2xl font-bold text-green-600">
-          {parseFloat(userBalance) / 1e18} Kairu
-        </div>
-      </div>
+  <Toast ref={toast} />
 
-      {/* Pending Rewards Box */}
-      <div className="mt-6 p-4 rounded-lg bg-white shadow-lg w-full max-w-4xl">
-        <h2 className="text-xl font-bold text-center mb-4 text-blue-800">Pending Rewards</h2>
-        <div className="text-center text-2xl font-bold text-green-600 mb-4">
-          {parseFloat(pendingRewards).toFixed(6)} ETH
-        </div>
-        <button
-          className="w-full bg-green-500 text-white rounded-lg py-2"
-          onClick={handleClaimRewards}
-          disabled={claimLoading || parseFloat(pendingRewards) === 0}
-        >
-          {claimLoading ? "Claiming..." : "Claim Rewards"}
-        </button>
-      </div>
+  {/* Box 2: Staking UI Box */}
+  <div className="mt-2 p-4 w-full max-w-4xl pixel-font">
+    <div className="flex flex-col md:flex-row justify-between items-start md:space-x-6 w-full px-4"> {/* Set padding on both sides */}
 
-      {/* Staking UI Box */}
-      <div className="mt-6 p-4 rounded-lg bg-white shadow-lg w-full max-w-4xl">
-        <h2 className="text-xl font-bold text-center mb-4 text-blue-800">Staking Tiers</h2>
-        <div className="flex justify-between space-x-4">
-          {/* Gold Tier */}
-          <div className="flex-1 p-4 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-lg">
-            <h3 className="text-lg font-bold">Gold Tier</h3>
-            <div className="mt-4 space-y-2">
+      {/* Gold Box Container */}
+      <div className="flex flex-col items-center w-full md:max-w-[33%] px-2"> {/* Added `max-w` for mobile, padding on both sides */}
+        <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#080702] to-[#C38D15] p-2 rounded-2xl">
+          <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
+            <div className="bg-gradient-to-r from-[#080702] to-[#C38D15] text-white p-2 rounded-full text-xl font-bold mb-4">
+              GOLD
+            </div>
+            <div className="space-y-2 text-black text-xs md:text-sm">
               <div>
                 <span className="font-semibold">REWARDS:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">50% LP-FEES</div>
+                <div className="p-2 mt-1">50% LP-FEES</div>
               </div>
               <div>
                 <span className="font-semibold">AMOUNT:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">15m Kairu</div>
+                <div className="p-2 mt-1">15m Kairu</div>
               </div>
               <div>
                 <span className="font-semibold">LOCKED:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">15 days</div>
+                <div className="p-2 mt-1">15 days</div>
               </div>
               <div>
                 <span className="font-semibold">STAKED WALLETS:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1 text-black">
-                  {stakedWalletsInTier0?.length || 0}
-                </div>
+                <div className="p-2 mt-1">{stakedWalletsInTier0?.length || 0}</div>
               </div>
-              {userStakes[0] ? (
-                <button className="mt-2 w-full bg-red-500 text-white rounded-lg py-2" onClick={() => handleUnstake(0)}>
-                  {isLoading[0] ? "Unstaking..." : "Unstake"}
-                </button>
-              ) : (
-                <button className="mt-4 w-full bg-green-500 text-white rounded-lg py-2" onClick={() => handleStakeClick(0, 15000000000000000000000000)}>
-                  {isLoading[0] ? "Staking..." : "Stake"}
-                </button>
-              )}
             </div>
-          </div>
-
-          {/* Silver Tier */}
-          <div className="flex-1 p-4 rounded-lg bg-gradient-to-r from-gray-300 to-gray-500 text-white shadow-lg">
-            <h3 className="text-lg font-bold">Silver Tier</h3>
-            <div className="mt-4 space-y-2">
-              <div>
-                <span className="font-semibold">REWARDS:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">35% LP-FEES</div>
-              </div>
-              <div>
-                <span className="font-semibold">AMOUNT:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">7.5m Kairu</div>
-              </div>
-              <div>
-                <span className="font-semibold">LOCKED:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">20 days</div>
-              </div>
-              <div>
-                <span className="font-semibold">STAKED WALLETS:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1 text-black">
-                  {stakedWalletsInTier1?.length || 0}
-                </div>
-              </div>
-              {userStakes[1] ? (
-                <button className="mt-2 w-full bg-red-500 text-white rounded-lg py-2" onClick={() => handleUnstake(1)}>
-                  {isLoading[1] ? "Unstaking..." : "Unstake"}
-                </button>
-              ) : (
-                <button className="mt-4 w-full bg-green-500 text-white rounded-lg py-2" onClick={() => handleStakeClick(1, 7500000000000000000000000)}>
-                  {isLoading[1] ? "Staking..." : "Stake"}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Bronze Tier */}
-          <div className="flex-1 p-4 rounded-lg bg-[#cd7f32] text-white shadow-lg">
-            <h3 className="text-lg font-bold">Bronze Tier</h3>
-            <div className="mt-4 space-y-2">
-              <div>
-                <span className="font-semibold">REWARDS:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">15% LP-FEES</div>
-              </div>
-              <div>
-                <span className="font-semibold">AMOUNT:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">3.75m Kairu</div>
-              </div>
-              <div>
-                <span className="font-semibold">LOCKED:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1">30 days</div>
-              </div>
-              <div>
-                <span className="font-semibold">STAKED WALLETS:</span>
-                <div className="bg-gray-200 p-2 rounded mt-1 text-black">
-                  {stakedWalletsInTier2?.length || 0}
-                </div>
-              </div>
-              {userStakes[2] ? (
-                <button className="mt-2 w-full bg-red-500 text-white rounded-lg py-2" onClick={() => handleUnstake(2)}>
-                  {isLoading[2] ? "Unstaking..." : "Unstake"}
-                </button>
-              ) : (
-                <button className="mt-4 w-full bg-green-500 text-white rounded-lg py-2" onClick={() => handleStakeClick(2, 3750000000000000000000000)}>
-                  {isLoading[2] ? "Staking..." : "Stake"}
-                </button>
-              )}
-            </div>
+            <button className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto">
+              {isLoading[0] ? "Staking..." : "Stake"}
+            </button>
           </div>
         </div>
+        <img src="images/dolphin-gold.png" alt="Gold Dolphin" className="w-[125px] h-auto mt-2 mx-auto" />
       </div>
-    </main>
+
+      {/* Silver Box Container */}
+      <div className="flex flex-col items-center w-full md:max-w-[33%] px-2"> {/* Added padding and max width for silver box */}
+        <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#A8A8A8] to-[#FDFDFD] p-2 rounded-2xl">
+          <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
+            <div className="bg-gradient-to-r from-[#A8A8A8] to-[#FDFDFD] text-black p-2 rounded-full text-xl font-bold mb-4">
+              SILVER
+            </div>
+            <div className="space-y-2 text-black text-xs md:text-sm">
+              <div>
+                <span className="font-semibold">REWARDS:</span>
+                <div className="p-2 mt-1">35% LP-FEES</div>
+              </div>
+              <div>
+                <span className="font-semibold">AMOUNT:</span>
+                <div className="p-2 mt-1">7.5m Kairu</div>
+              </div>
+              <div>
+                <span className="font-semibold">LOCKED:</span>
+                <div className="p-2 mt-1">20 days</div>
+              </div>
+              <div>
+                <span className="font-semibold">STAKED WALLETS:</span>
+                <div className="p-2 mt-1">{stakedWalletsInTier1?.length || 0}</div>
+              </div>
+            </div>
+            <button className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto">
+              {isLoading[1] ? "Staking..." : "Stake"}
+            </button>
+          </div>
+        </div>
+        <img src="images/dolphin-silver.png" alt="Silver Dolphin" className="w-[125px] h-auto mt-2 mx-auto" />
+      </div>
+
+      {/* Bronze Box Container */}
+      <div className="flex flex-col items-center w-full md:max-w-[33%] px-2"> {/* Added padding and max width for bronze box */}
+        <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#A44F30] to-[#b87333] p-2 rounded-2xl">
+          <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
+            <div className="bg-gradient-to-r from-[#A44F30] to-[#b87333] text-white p-2 rounded-full text-xl font-bold mb-4">
+              BRONZE
+            </div>
+            <div className="space-y-2 text-black text-xs md:text-sm">
+              <div>
+                <span className="font-semibold">REWARDS:</span>
+                <div className="p-2 mt-1">15% LP-FEES</div>
+              </div>
+              <div>
+                <span className="font-semibold">AMOUNT:</span>
+                <div className="p-2 mt-1">3.75m Kairu</div>
+              </div>
+              <div>
+                <span className="font-semibold">LOCKED:</span>
+                <div className="p-2 mt-1">30 days</div>
+              </div>
+              <div>
+                <span className="font-semibold">STAKED WALLETS:</span>
+                <div className="p-2 mt-1">{stakedWalletsInTier2?.length || 0}</div>
+              </div>
+            </div>
+            <button className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto">
+              {isLoading[2] ? "Staking..." : "Stake"}
+            </button>
+          </div>
+        </div>
+        <img src="images/dolphin-bronze.png" alt="Bronze Dolphin" className="w-[125px] h-auto mt-2 mx-auto" />
+      </div>
+    </div>
+  </div>
+
+  {/* User Balance and Pending Rewards Boxes */}
+  <div className="mt-6 flex flex-col items-center space-y-4 w-full max-w-4xl px-4 pixel-font">
+    <div className="p-4 rounded-lg bg-white shadow-lg w-full max-w-md text-center">
+      <h2 className="text-lg font-bold text-center mb-2 text-blue-800">
+        Your Balance
+      </h2>
+      <div className="text-center text-xl font-bold text-green-600">
+        {parseFloat(userBalance) / 1e18} Kairu
+      </div>
+    </div>
+
+    <div className="p-4 rounded-lg bg-white shadow-lg w-full max-w-md text-center">
+      <h2 className="text-lg font-bold text-center mb-2 text-blue-800">
+        Pending Rewards
+      </h2>
+      <div className="text-center text-xl font-bold text-green-600 mb-2">
+        {parseFloat(pendingRewards).toFixed(6)} ETH
+      </div>
+      <button
+        className="w-full bg-[#36A8FE] text-white rounded-lg py-1"
+        onClick={handleClaimRewards}
+        disabled={claimLoading || parseFloat(pendingRewards) === 0}
+      >
+        {claimLoading ? "Claiming..." : "Claim Rewards"}
+      </button>
+    </div>
+  </div>
+</main>
+
+
+
+
+    </>
   );
 }
