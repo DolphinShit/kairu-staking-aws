@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
 
 // Importing Press Start 2P font from Google Fonts
-import Head from 'next/head';
+import Head from "next/head";
 
 const staking_address = process.env.NEXT_PUBLIC_STAKING_ADDRESS as string;
 const reward_address = process.env.NEXT_PUBLIC_REWARD_ADDRESS as string;
@@ -240,162 +240,186 @@ export default function Home() {
       </Head>
 
       <main className="flex flex-col items-center justify-center min-h-screen bg-[#36A8FE] py-4">
-  {/* Box 1: Top images and Connect button */}
-  <div className="flex justify-center items-center space-x-4 mb-6">
-    <img src="images/dolphin-gold2.png" alt="Gold Dolphin Top" className="w-[125px] h-auto" />
-    <div className="flex justify-center items-center space-x-2">
-      <img src="images/vista-logo.png" alt="Left Logo" className="w-12 h-12" />
-      <ConnectButton
-        client={client}
-        appMetadata={{
-          name: "Example App",
-          url: "https://example.com",
-        }}
-      />
-      <img src="images/vista-logo.png" alt="Right Logo" className="w-12 h-12" />
-    </div>
-    <img src="images/dolphin-bronze2.png" alt="Bronze Dolphin Top" className="w-[125px] h-auto" />
-  </div>
+        {/* Box 1: Top images and Connect button */}
+        <div className="flex justify-center items-center space-x-4 mb-6">
+          <img
+            src="images/dolphin-gold2.png"
+            alt="Gold Dolphin Top"
+            className="w-[125px] h-auto"
+          />
+          <div className="flex justify-center items-center space-x-2">
+            <img src="images/vista-logo.png" alt="Left Logo" className="w-12 h-12" />
+            <ConnectButton
+              client={client}
+              appMetadata={{
+                name: "Example App",
+                url: "https://example.com",
+              }}
+            />
+            <img src="images/vista-logo.png" alt="Right Logo" className="w-12 h-12" />
+          </div>
+          <img
+            src="images/dolphin-bronze2.png"
+            alt="Bronze Dolphin Top"
+            className="w-[125px] h-auto"
+          />
+        </div>
 
-  <Toast ref={toast} />
+        <Toast ref={toast} />
 
-  {/* Box 2: Staking UI Box */}
-  <div className="mt-2 p-4 w-full max-w-4xl pixel-font">
-    <div className="flex flex-col md:flex-row justify-between items-start md:space-x-6 w-full px-4"> {/* Set padding on both sides */}
-
-      {/* Gold Box Container */}
-      <div className="flex flex-col items-center w-full md:max-w-[33%] px-2"> {/* Added `max-w` for mobile, padding on both sides */}
-        <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#080702] to-[#C38D15] p-2 rounded-2xl">
-          <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
-            <div className="bg-gradient-to-r from-[#080702] to-[#C38D15] text-white p-2 rounded-full text-xl font-bold mb-4">
-              GOLD
+        {/* Box 2: Staking UI Box */}
+        <div className="mt-2 p-4 w-full max-w-4xl pixel-font">
+          <div className="flex flex-col md:flex-row justify-between items-start md:space-x-6 w-full px-4">
+            {/* Gold Box Container */}
+            <div className="flex flex-col items-center w-full md:max-w-[33%] px-2">
+              <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#080702] to-[#C38D15] p-2 rounded-2xl">
+                <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
+                  <div className="bg-gradient-to-r from-[#080702] to-[#C38D15] text-white p-2 rounded-full text-xl font-bold mb-4">
+                    GOLD
+                  </div>
+                  <div className="space-y-2 text-black text-xs md:text-sm">
+                    <div>
+                      <span className="font-semibold">REWARDS:</span>
+                      <div className="p-2 mt-1">50% LP-FEES</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">AMOUNT:</span>
+                      <div className="p-2 mt-1">30m Kairu</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">LOCKED:</span>
+                      <div className="p-2 mt-1">15 days</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">STAKED WALLETS:</span>
+                      <div className="p-2 mt-1">{stakedWalletsInTier0?.length || 0}</div>
+                    </div>
+                  </div>
+                  <button
+                    className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto"
+                    onClick={() => handleStakeClick(0, 30_000_000)} // Updated to 30 million Kairu
+                  >
+                    {isLoading[0] ? "Staking..." : "Stake"}
+                  </button>
+                </div>
+              </div>
+              <img
+                src="images/dolphin-gold.png"
+                alt="Gold Dolphin"
+                className="w-[125px] h-auto mt-2 mx-auto"
+              />
             </div>
-            <div className="space-y-2 text-black text-xs md:text-sm">
-              <div>
-                <span className="font-semibold">REWARDS:</span>
-                <div className="p-2 mt-1">50% LP-FEES</div>
+
+            {/* Silver Box Container */}
+            <div className="flex flex-col items-center w-full md:max-w-[33%] px-2">
+              <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#A8A8A8] to-[#FDFDFD] p-2 rounded-2xl">
+                <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
+                  <div className="bg-gradient-to-r from-[#A8A8A8] to-[#FDFDFD] text-black p-2 rounded-full text-xl font-bold mb-4">
+                    SILVER
+                  </div>
+                  <div className="space-y-2 text-black text-xs md:text-sm">
+                    <div>
+                      <span className="font-semibold">REWARDS:</span>
+                      <div className="p-2 mt-1">35% LP-FEES</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">AMOUNT:</span>
+                      <div className="p-2 mt-1">15m Kairu</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">LOCKED:</span>
+                      <div className="p-2 mt-1">20 days</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">STAKED WALLETS:</span>
+                      <div className="p-2 mt-1">{stakedWalletsInTier1?.length || 0}</div>
+                    </div>
+                  </div>
+                  <button
+                    className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto"
+                    onClick={() => handleStakeClick(1, 15_000_000)} // Updated to 15 million Kairu
+                  >
+                    {isLoading[1] ? "Staking..." : "Stake"}
+                  </button>
+                </div>
               </div>
-              <div>
-                <span className="font-semibold">AMOUNT:</span>
-                <div className="p-2 mt-1">15m Kairu</div>
-              </div>
-              <div>
-                <span className="font-semibold">LOCKED:</span>
-                <div className="p-2 mt-1">15 days</div>
-              </div>
-              <div>
-                <span className="font-semibold">STAKED WALLETS:</span>
-                <div className="p-2 mt-1">{stakedWalletsInTier0?.length || 0}</div>
-              </div>
+              <img
+                src="images/dolphin-silver.png"
+                alt="Silver Dolphin"
+                className="w-[125px] h-auto mt-2 mx-auto"
+              />
             </div>
-            <button className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto">
-              {isLoading[0] ? "Staking..." : "Stake"}
+
+            {/* Bronze Box Container */}
+            <div className="flex flex-col items-center w-full md:max-w-[33%] px-2">
+              <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#A44F30] to-[#b87333] p-2 rounded-2xl">
+                <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
+                  <div className="bg-gradient-to-r from-[#A44F30] to-[#b87333] text-white p-2 rounded-full text-xl font-bold mb-4">
+                    BRONZE
+                  </div>
+                  <div className="space-y-2 text-black text-xs md:text-sm">
+                    <div>
+                      <span className="font-semibold">REWARDS:</span>
+                      <div className="p-2 mt-1">15% LP-FEES</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">AMOUNT:</span>
+                      <div className="p-2 mt-1">7.5m Kairu</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">LOCKED:</span>
+                      <div className="p-2 mt-1">30 days</div>
+                    </div>
+                    <div>
+                      <span className="font-semibold">STAKED WALLETS:</span>
+                      <div className="p-2 mt-1">{stakedWalletsInTier2?.length || 0}</div>
+                    </div>
+                  </div>
+                  <button
+                    className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto"
+                    onClick={() => handleStakeClick(2, 7_500_000)} // Updated to 7.5 million Kairu
+                  >
+                    {isLoading[2] ? "Staking..." : "Stake"}
+                  </button>
+                </div>
+              </div>
+              <img
+                src="images/dolphin-bronze.png"
+                alt="Bronze Dolphin"
+                className="w-[125px] h-auto mt-2 mx-auto"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* User Balance and Pending Rewards Boxes */}
+        <div className="mt-6 flex flex-col items-center space-y-4 w-full max-w-4xl px-4 pixel-font">
+          <div className="p-4 rounded-lg bg-white shadow-lg w-full max-w-md text-center">
+            <h2 className="text-lg font-bold text-center mb-2 text-blue-800">
+              Your Balance
+            </h2>
+            <div className="text-center text-xl font-bold text-green-600">
+              {parseFloat(userBalance) / 1e18} Kairu
+            </div>
+          </div>
+
+          <div className="p-4 rounded-lg bg-white shadow-lg w-full max-w-md text-center">
+            <h2 className="text-lg font-bold text-center mb-2 text-blue-800">
+              Pending Rewards
+            </h2>
+            <div className="text-center text-xl font-bold text-green-600 mb-2">
+              {parseFloat(pendingRewards).toFixed(6)} ETH
+            </div>
+            <button
+              className="w-full bg-[#36A8FE] text-white rounded-lg py-1"
+              onClick={handleClaimRewards}
+              disabled={claimLoading || parseFloat(pendingRewards) === 0}
+            >
+              {claimLoading ? "Claiming..." : "Claim Rewards"}
             </button>
           </div>
         </div>
-        <img src="images/dolphin-gold.png" alt="Gold Dolphin" className="w-[125px] h-auto mt-2 mx-auto" />
-      </div>
-
-      {/* Silver Box Container */}
-      <div className="flex flex-col items-center w-full md:max-w-[33%] px-2"> {/* Added padding and max width for silver box */}
-        <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#A8A8A8] to-[#FDFDFD] p-2 rounded-2xl">
-          <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
-            <div className="bg-gradient-to-r from-[#A8A8A8] to-[#FDFDFD] text-black p-2 rounded-full text-xl font-bold mb-4">
-              SILVER
-            </div>
-            <div className="space-y-2 text-black text-xs md:text-sm">
-              <div>
-                <span className="font-semibold">REWARDS:</span>
-                <div className="p-2 mt-1">35% LP-FEES</div>
-              </div>
-              <div>
-                <span className="font-semibold">AMOUNT:</span>
-                <div className="p-2 mt-1">7.5m Kairu</div>
-              </div>
-              <div>
-                <span className="font-semibold">LOCKED:</span>
-                <div className="p-2 mt-1">20 days</div>
-              </div>
-              <div>
-                <span className="font-semibold">STAKED WALLETS:</span>
-                <div className="p-2 mt-1">{stakedWalletsInTier1?.length || 0}</div>
-              </div>
-            </div>
-            <button className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto">
-              {isLoading[1] ? "Staking..." : "Stake"}
-            </button>
-          </div>
-        </div>
-        <img src="images/dolphin-silver.png" alt="Silver Dolphin" className="w-[125px] h-auto mt-2 mx-auto" />
-      </div>
-
-      {/* Bronze Box Container */}
-      <div className="flex flex-col items-center w-full md:max-w-[33%] px-2"> {/* Added padding and max width for bronze box */}
-        <div className="relative flex flex-col items-center w-full bg-gradient-to-r from-[#A44F30] to-[#b87333] p-2 rounded-2xl">
-          <div className="flex-1 p-4 bg-white shadow-lg rounded-2xl text-center w-full">
-            <div className="bg-gradient-to-r from-[#A44F30] to-[#b87333] text-white p-2 rounded-full text-xl font-bold mb-4">
-              BRONZE
-            </div>
-            <div className="space-y-2 text-black text-xs md:text-sm">
-              <div>
-                <span className="font-semibold">REWARDS:</span>
-                <div className="p-2 mt-1">15% LP-FEES</div>
-              </div>
-              <div>
-                <span className="font-semibold">AMOUNT:</span>
-                <div className="p-2 mt-1">3.75m Kairu</div>
-              </div>
-              <div>
-                <span className="font-semibold">LOCKED:</span>
-                <div className="p-2 mt-1">30 days</div>
-              </div>
-              <div>
-                <span className="font-semibold">STAKED WALLETS:</span>
-                <div className="p-2 mt-1">{stakedWalletsInTier2?.length || 0}</div>
-              </div>
-            </div>
-            <button className="mt-4 bg-[#36A8FE] text-white rounded-lg py-2 w-32 mx-auto">
-              {isLoading[2] ? "Staking..." : "Stake"}
-            </button>
-          </div>
-        </div>
-        <img src="images/dolphin-bronze.png" alt="Bronze Dolphin" className="w-[125px] h-auto mt-2 mx-auto" />
-      </div>
-    </div>
-  </div>
-
-  {/* User Balance and Pending Rewards Boxes */}
-  <div className="mt-6 flex flex-col items-center space-y-4 w-full max-w-4xl px-4 pixel-font">
-    <div className="p-4 rounded-lg bg-white shadow-lg w-full max-w-md text-center">
-      <h2 className="text-lg font-bold text-center mb-2 text-blue-800">
-        Your Balance
-      </h2>
-      <div className="text-center text-xl font-bold text-green-600">
-        {parseFloat(userBalance) / 1e18} Kairu
-      </div>
-    </div>
-
-    <div className="p-4 rounded-lg bg-white shadow-lg w-full max-w-md text-center">
-      <h2 className="text-lg font-bold text-center mb-2 text-blue-800">
-        Pending Rewards
-      </h2>
-      <div className="text-center text-xl font-bold text-green-600 mb-2">
-        {parseFloat(pendingRewards).toFixed(6)} ETH
-      </div>
-      <button
-        className="w-full bg-[#36A8FE] text-white rounded-lg py-1"
-        onClick={handleClaimRewards}
-        disabled={claimLoading || parseFloat(pendingRewards) === 0}
-      >
-        {claimLoading ? "Claiming..." : "Claim Rewards"}
-      </button>
-    </div>
-  </div>
-</main>
-
-
-
-
+      </main>
     </>
   );
 }
